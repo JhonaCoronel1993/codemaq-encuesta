@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuesta · Melamínicos CODEMAQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== ENCUESTA ===== -->
+<div id="surveySection">
+
+  <div class="header">
+    <button class="admin-nav-btn" onclick="openAdminModal()">⚙ Admin</button>
+    <div class="logo-container">
+      <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50,52)">
+          <ellipse cx="0" cy="20" rx="8" ry="22" fill="#8B5E3C"/>
+          <path d="M0,0 Q-22,8,-26,22 Q-18,18,-10,14 Q-5,8,0,4 Q5,8,10,14 Q18,18,26,22 Q22,8,0,0 Z" fill="#8B5E3C"/>
+          <circle cx="0" cy="-10" r="9" fill="#8B5E3C"/>
+          <circle cx="-22" cy="10" r="7" fill="#7b4a1e"/>
+          <ellipse cx="-22" cy="20" rx="5" ry="10" fill="#7b4a1e"/>
+          <circle cx="22" cy="10" r="7" fill="#7b4a1e"/>
+          <ellipse cx="22" cy="20" rx="5" ry="10" fill="#7b4a1e"/>
+          <ellipse cx="0" cy="-26" rx="9" ry="14" fill="#2d7a1f"/>
+          <ellipse cx="-16" cy="-20" rx="9" ry="13" fill="#4a9e30" transform="rotate(-30,-16,-20)"/>
+          <ellipse cx="16" cy="-20" rx="9" ry="13" fill="#4a9e30" transform="rotate(30,16,-20)"/>
+          <ellipse cx="-28" cy="-10" rx="8" ry="12" fill="#3a8a24" transform="rotate(-45,-28,-10)"/>
+          <ellipse cx="28" cy="-10" rx="8" ry="12" fill="#3a8a24" transform="rotate(45,28,-10)"/>
+        </g>
+      </svg>
+      <div>
+        <div class="brand-name">MELAMÍNICOS</div>
+        <div class="brand-sub">CODEMAQ</div>
+      </div>
+    </div>
+    <div class="header-tagline">Encuesta de necesidades para clientes del sector</div>
+  </div>
+
+  <div class="main">
+
+    <!-- PASO 1: DATOS -->
+    <div id="step1">
+      <div class="card">
+        <div class="section-badge">Paso 1 de 2</div>
+        <div class="card-title">Cuéntanos sobre ti</div>
+        <div class="card-desc">Esta información nos ayuda a conocerte mejor. Todos los datos son confidenciales.</div>
+        <div class="field-row">
+          <div class="field"><label>Nombre completo *</label><input type="text" id="f_nombre" placeholder="Ej: Juan García"></div>
+          <div class="field"><label>Teléfono celular *</label><input type="tel" id="f_telefono" placeholder="Ej: 0999123456"></div>
+        </div>
+        <div class="field"><label>Correo electrónico *</label><input type="email" id="f_correo" placeholder="Ej: juan@correo.com"></div>
+        <div class="field-row">
+          <div class="field"><label>Profesión / Oficio *</label><input type="text" id="f_profesion" placeholder="Ej: Carpintero"></div>
+          <div class="field"><label>Años de experiencia *</label><input type="number" id="f_experiencia" placeholder="Ej: 5" min="0" max="60"></div>
+        </div>
+        <div class="field"><label>Taller o carpintería <span class="optional">(opcional)</span></label><input type="text" id="f_taller" placeholder="Ej: Muebles García y Hnos."></div>
+        <button class="btn-primary" onclick="goToSurvey()">Continuar a la encuesta →</button>
+      </div>
+    </div>
+
+    <!-- PASO 2: PREGUNTAS -->
+    <div id="step2" style="display:none;">
+      <div class="progress-wrap">
+        <div class="progress-labels">
+          <span class="progress-title">Progreso de la encuesta</span>
+          <span class="progress-pct" id="progPct">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">1</span>¿Qué tipo de materia prima utiliza? <span class="q-hint">(múltiple)</span></div>
+        <div class="options-grid" id="q1">
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Melamina"><span class="opt-label">🟫 Melamina</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="MDF"><span class="opt-label">🟩 MDF</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="MDP"><span class="opt-label">🟨 MDP</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Formaica"><span class="opt-label">🔵 Formaica / Fórmica</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Triplex"><span class="opt-label">🟤 Triplex / Contrachapado</span></label>
+          <label class="opt-item" onclick="toggleOther(this,'q1_other')"><input type="checkbox" value="Otra"><span class="opt-label">✏️ Otra materia prima</span><input type="text" class="opt-other-input" id="q1_other" placeholder="Especifique..." onclick="event.stopPropagation()"></label>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">2</span>¿Qué problemas ha tenido al comprar estos productos? <span class="q-hint">(múltiple)</span></div>
+        <div class="options-grid" id="q2">
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Precios elevados"><span class="opt-label">💸 Precios elevados o poco competitivos</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Falta de stock"><span class="opt-label">📦 Escasez o falta de stock</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Mala calidad"><span class="opt-label">⚠️ Mala calidad del material</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Tiempos de entrega largos"><span class="opt-label">🕐 Tiempos de entrega largos</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Cortes imprecisos"><span class="opt-label">📐 Cortes imprecisos o acabados deficientes</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Poca variedad"><span class="opt-label">🎨 Poca variedad de diseños y colores</span></label>
+          <label class="opt-item" onclick="toggleOther(this,'q2_other')"><input type="checkbox" value="Otro problema"><span class="opt-label">✏️ Otro problema</span><input type="text" class="opt-other-input" id="q2_other" placeholder="Descríbalo..." onclick="event.stopPropagation()"></label>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">3</span>¿Cuáles son los mayores beneficios? <span class="q-hint">(múltiple)</span></div>
+        <div class="options-grid" id="q3">
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Facilidad de corte"><span class="opt-label">🔧 Facilidad de corte y maquinado</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Buen acabado"><span class="opt-label">✨ Acabado estético y presentación profesional</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Precio accesible"><span class="opt-label">💰 Precio accesible frente a madera natural</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Durabilidad"><span class="opt-label">💪 Durabilidad y resistencia</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Variedad de diseños"><span class="opt-label">🎨 Gran variedad de colores y diseños</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Rapidez de producción"><span class="opt-label">⚡ Rapidez en la producción</span></label>
+          <label class="opt-item" onclick="toggleOther(this,'q3_other')"><input type="checkbox" value="Otro beneficio"><span class="opt-label">✏️ Otro beneficio</span><input type="text" class="opt-other-input" id="q3_other" placeholder="Descríbalo..." onclick="event.stopPropagation()"></label>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">4</span>¿Cuál es su promedio de compras semanales?</div>
+        <div class="scale-opts" id="q4">
+          <button class="scale-btn" onclick="selectScale(this,'q4')">Menos de $100</button>
+          <button class="scale-btn" onclick="selectScale(this,'q4')">$100 – $1.000</button>
+          <button class="scale-btn" onclick="selectScale(this,'q4')">$1.000 – $10.000</button>
+          <button class="scale-btn" onclick="selectScale(this,'q4')">Más de $10.000</button>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">5</span>¿Qué le gustaría que mejore en el servicio de corte y canteado? <span class="q-hint">(múltiple)</span></div>
+        <div class="options-grid" id="q5">
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Mayor precisión"><span class="opt-label">📐 Mayor precisión en los cortes</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Entregas más rápidas"><span class="opt-label">🚀 Tiempos de entrega más rápidos</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Mejor acabado de canto"><span class="opt-label">✅ Mejor calidad en el canteado</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Más opciones de canto"><span class="opt-label">🎨 Más variedad de colores de canto</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Servicio a domicilio"><span class="opt-label">🚛 Servicio de entrega a domicilio</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Mejor atención"><span class="opt-label">🙋 Mejor atención al cliente y asesoría</span></label>
+          <label class="opt-item" onclick="toggleOther(this,'q5_other')"><input type="checkbox" value="Otra mejora"><span class="opt-label">✏️ Otra mejora</span><input type="text" class="opt-other-input" id="q5_other" placeholder="Descríbala..." onclick="event.stopPropagation()"></label>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">6</span>¿Qué tipo de bisagras usa con más frecuencia? <span class="q-hint">(múltiple)</span></div>
+        <div class="options-grid" id="q6">
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Bisagra recta"><span class="opt-label">📌 Recta (0mm de salida)</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Bisagra semicodo"><span class="opt-label">📌 Semicodo (9.5mm)</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Bisagra codo normal"><span class="opt-label">📌 Codo normal / empotrada</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Bisagra hidráulica"><span class="opt-label">⚙️ Hidráulica / soft-close</span></label>
+        </div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">7</span>¿Qué tipo de rieles para cajones usa con más frecuencia?</div>
+        <div class="scale-opts" id="q7">
+          <button class="scale-btn" onclick="selectScale(this,'q7')">Riel 45cm</button>
+          <button class="scale-btn" onclick="selectScale(this,'q7')">Riel 50cm</button>
+          <button class="scale-btn" onclick="selectScale(this,'q7')">Riel 55cm</button>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">8</span>¿Qué medidas de tornillos usa con más frecuencia? <span class="q-hint">(múltiple)</span></div>
+        <div class="options-grid" id="q8">
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Tornillo 6x1.5"><span class="opt-label">🔩 6 × 1.5"</span></label>
+          <label class="opt-item" onclick="toggleCheck(this)"><input type="checkbox" value="Tornillo 8x1.5"><span class="opt-label">🔩 8 × 1.5"</span></label>
+          <label class="opt-item" onclick="toggleOther(this,'q8_other')"><input type="checkbox" value="Tornillo otro"><span class="opt-label">✏️ Otra medida</span><input type="text" class="opt-other-input" id="q8_other" placeholder="Ej: 10x2" onclick="event.stopPropagation()"></label>
+        </div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="card">
+        <div class="q-title"><span class="q-number">9</span>¿Le gustaría asistir a capacitaciones sobre optimización y mejora de su trabajo?</div>
+        <div class="card-desc" style="margin-bottom:14px;">Talleres prácticos: manejo de materiales, técnicas de corte, optimización de procesos y más.</div>
+        <div class="yesno">
+          <button class="yn-btn" onclick="selectYN(this,'si')">👍 Sí, me interesa</button>
+          <button class="yn-btn" onclick="selectYN(this,'no')">👎 No, por ahora no</button>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="card" style="background:var(--verde-pale);border-color:var(--verde);">
+        <div class="card-title" style="color:var(--verde-dark);">¡Ya casi terminamos!</div>
+        <div class="card-desc">Revisa tus respuestas y envía la encuesta. Tu opinión es muy valiosa.</div>
+        <button class="btn-primary" id="submitBtn" onclick="submitSurvey()">✓ Enviar encuesta</button>
+        <button class="btn-secondary" onclick="goBackToStep1()">← Volver al inicio</button>
+      </div>
+    </div>
+
+    <!-- GRACIAS -->
+    <div id="thankYou" style="display:none;" class="thankyou">
+      <div class="thankyou-icon">🌿</div>
+      <h2>¡Muchas gracias!</h2>
+      <p>Hemos recibido tu encuesta.<br>Tu opinión es fundamental para que <strong>Melamínicos CODEMAQ</strong> pueda ofrecerte un mejor servicio.</p>
+      <br>
+      <button class="btn-primary" onclick="restartSurvey()" style="max-width:280px;margin:0 auto;">Hacer otra encuesta</button>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /surveySection -->
+
+<!-- ===== MODAL LOGIN ADMIN ===== -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAdminModal()">✕</button>
+    <h2>Acceso Administrador</h2>
+    <p>Ingresa tus credenciales para gestionar la encuesta</p>
+    <div class="field"><label>Usuario</label><input type="text" id="adminUser" placeholder="admin"></div>
+    <div class="field"><label>Contraseña</label><input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+    <div id="loginError" class="error-msg" style="display:none;">Usuario o contraseña incorrectos.</div>
+    <button class="btn-primary" onclick="tryLogin()" style="margin-top:8px;">Ingresar →</button>
+  </div>
+</div>
+
+<!-- ===== PANEL ADMIN ===== -->
+<div class="admin-panel" id="adminPanel">
+
+  <div class="admin-header">
+    <svg width="44" height="44" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+      <g transform="translate(50,52)">
+        <ellipse cx="0" cy="20" rx="8" ry="22" fill="rgba(255,255,255,0.7)"/>
+        <path d="M0,0 Q-22,8,-26,22 Q-18,18,-10,14 Q-5,8,0,4 Q5,8,10,14 Q18,18,26,22 Q22,8,0,0 Z" fill="rgba(255,255,255,0.7)"/>
+        <circle cx="0" cy="-10" r="9" fill="rgba(255,255,255,0.7)"/>
+        <ellipse cx="0" cy="-26" rx="9" ry="14" fill="rgba(255,255,255,0.9)"/>
+        <ellipse cx="-16" cy="-20" rx="9" ry="13" fill="rgba(255,255,255,0.8)" transform="rotate(-30,-16,-20)"/>
+        <ellipse cx="16" cy="-20" rx="9" ry="13" fill="rgba(255,255,255,0.8)" transform="rotate(30,16,-20)"/>
+      </g>
+    </svg>
+    <div style="flex:1">
+      <h1>Panel de Administración · CODEMAQ</h1>
+      <p id="adminWelcome">Bienvenido</p>
+    </div>
+    <button class="admin-logout" onclick="logout()">Cerrar sesión</button>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="atab active"  onclick="switchTab('stats')">📊 Estadísticas</button>
+    <button class="atab"         onclick="switchTab('responses')">📋 Respuestas</button>
+    <button class="atab"         onclick="switchTab('questions')">✏️ Preguntas</button>
+    <button class="atab"         onclick="switchTab('users')">👥 Usuarios</button>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- TAB STATS -->
+    <div id="tab_stats">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <h2 style="font-size:20px;font-weight:800;color:var(--verde-dark);">Resumen de Resultados</h2>
+        <button class="pdf-btn" onclick="generatePDF()">📄 Exportar PDF</button>
+      </div>
+      <div class="stats-grid" id="statsCards">
+        <div class="stat-card"><div class="stat-num">—</div><div class="stat-label">Cargando...</div></div>
+      </div>
+      <div id="chartsArea"></div>
+    </div>
+
+    <!-- TAB RESPONSES -->
+    <div id="tab_responses" style="display:none;">
+      <h2 style="font-size:20px;font-weight:800;color:var(--verde-dark);margin-bottom:20px;">Respuestas individuales</h2>
+      <div style="overflow-x:auto;">
+        <table class="resp-table">
+          <thead>
+            <tr><th>#</th><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Profesión</th><th>Exp.</th><th>Taller</th><th>Fecha</th></tr>
+          </thead>
+          <tbody id="respBody">
+            <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--texto-muted);">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB QUESTIONS -->
+    <div id="tab_questions" style="display:none;">
+      <h2 style="font-size:20px;font-weight:800;color:var(--verde-dark);margin-bottom:8px;">Preguntas de la encuesta</h2>
+      <p style="font-size:13px;color:var(--texto-muted);margin-bottom:20px;">Preguntas activas en la encuesta.</p>
+      <div id="questionsEditor"></div>
+    </div>
+
+    <!-- TAB USERS -->
+    <div id="tab_users" style="display:none;">
+      <h2 style="font-size:20px;font-weight:800;color:var(--verde-dark);margin-bottom:20px;">Usuarios Administradores</h2>
+      <div id="usersList"></div>
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title" style="font-size:16px;">Agregar nuevo usuario</div>
+        <div class="field-row" style="margin-top:12px;">
+          <div class="field"><label>Usuario</label><input type="text" id="newUserName" placeholder="nombre_usuario"></div>
+          <div class="field"><label>Contraseña</label><input type="password" id="newUserPass" placeholder="••••••••"></div>
+        </div>
+        <button class="btn-small" onclick="addUser()">+ Agregar usuario</button>
+      </div>
+    </div>
+
+  </div><!-- /admin-content -->
+</div><!-- /adminPanel -->
+
+<script src="survey.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
